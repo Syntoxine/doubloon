@@ -89,7 +89,8 @@ def main(
                 for j in file_paths[i]:
                     table.add_row(i, j)
             
-        console.print(table)
+        if duplicates : console.print(table)
+        else: console.print("[blue]No duplicates[/blue] found!")
 
 
 if __name__ == "__main__":
