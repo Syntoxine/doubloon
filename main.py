@@ -53,7 +53,7 @@ def main(
                     text_filename.stylize(f"link file://{path}")
                     file_size = path.stat().st_size
                     text_filename.append(f" ({decimal(file_size)})", "blue")
-                    match path.suffix:
+                    match path.suffix.lower():
                         case ".py": icon = "🐍 "
                         case ".png" | ".jpeg": icon = "🎨 "
                         case ".mov" | ".mp4": icon = "🎥 "
