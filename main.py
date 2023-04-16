@@ -75,6 +75,8 @@ def main(
         duplicates = []
         
         for root, dirs, files in os.walk(directory):
+            files = [f for f in files if not f[0] == '.']
+            dirs[:] = [d for d in dirs if not d[0] == '.']
             for i in files:
                 file_path = os.path.join(root, i)
                 try:
