@@ -1,6 +1,7 @@
 import typer
 import os
 import pathlib
+import csv
 from rich.console import Console
 from rich.table import Table
 from rich.tree import Tree
@@ -21,7 +22,8 @@ def main(
         help="The directory which will be checked for duplicates.",
         show_default="Current directory",
     ),
-    show_tree: bool = typer.Option(False, help="Show a tree of the working directory"),
+    show_tree: bool = typer.Option(False, help="Show a tree of the working directory."),
+    export: bool = typer.Option(False, help="Exports duplicates to a .csv file.")
 ) -> None:
     """Utility script to check for file duplicates."""
     if show_tree:
@@ -68,30 +70,51 @@ def main(
         walk_directory(pathlib.Path(fdirectory), tree)
         console.print(tree)
 
+    elif export:
+        
+        duplicates, file_paths = dir_walk(directory)
+        if duplicates:
+            with open('doubloon-duplicates.csv', 'w', newline='') as file:
+                writer = csv.writer(file, dialect = 'excel')
+                
+                writer.writerows([["Duplicates"],["Name", "Filepath"]])
+                for i in duplicates:
+                    for j in file_paths[i]:
+                        writer.writerow([i, j])
+            
+            console.print(f"Duplicates successfully exported to [blue]{directory}doubloon-duplicates.csv[/blue].")
+            
+        else: console.print("[blue]No duplicates[/blue] found!")
+    
     else:
         table = Table("Name", "Path", show_lines=True, title="Duplicates")
 
-        file_paths = {}
-        duplicates = []
-        
-        for root, dirs, files in os.walk(directory):
-            files = [f for f in files if not f[0] == '.']
-            dirs[:] = [d for d in dirs if not d[0] == '.']
-            for i in files:
-                file_path = os.path.join(root, i)
-                try:
-                    file_paths[i] = [*file_paths[i],file_path]
-                    duplicates.append(i)
-                except KeyError:
-                    file_paths[i] = [file_path]
+        duplicates, file_paths = dir_walk(directory)
             
-            for i in duplicates:
-                for j in file_paths[i]:
-                    table.add_row(i, j)
+        for i in duplicates:
+            for j in file_paths[i]:
+                table.add_row(i, j)
             
         if duplicates : console.print(table)
         else: console.print("[blue]No duplicates[/blue] found!")
 
+
+def dir_walk(directory : str) -> tuple[list,dict]:
+    file_paths = {}
+    duplicates = []
+        
+    for root, dirs, files in os.walk(directory):
+        files = [f for f in files if not f[0] == '.']
+        dirs[:] = [d for d in dirs if not d[0] == '.']
+        for i in files:
+            file_path = os.path.join(root, i)
+            try:
+                file_paths[i] = [*file_paths[i],file_path]
+                duplicates.append(i)
+            except KeyError:
+                file_paths[i] = [file_path]
+                
+    return (duplicates, file_paths)
 
 if __name__ == "__main__":
     app()
