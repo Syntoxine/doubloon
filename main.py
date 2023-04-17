@@ -57,7 +57,7 @@ def main(
                     text_filename.append(f" ({decimal(file_size)})", "blue")
                     match path.suffix.lower():
                         case ".py": icon = "🐍 "
-                        case ".png" | ".jpeg": icon = "🎨 "
+                        case ".png" | ".jpeg" | ".jpg": icon = "🎨 "
                         case ".mov" | ".mp4": icon = "🎥 "
                         case _: icon = "📄 "
                     tree.add(Text(icon) + text_filename)
